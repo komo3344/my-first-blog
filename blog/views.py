@@ -92,3 +92,7 @@ def comment_remove(request, pk):
     comment = get_object_or_404(Comment, pk=pk)
     comment.delete()
     return redirect('post_detail', pk=comment.post.pk)
+
+
+def oauth(request):
+    return redirect('post_detail')
