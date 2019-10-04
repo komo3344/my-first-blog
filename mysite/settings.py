@@ -27,7 +27,8 @@ SECRET_KEY = 'i###8tzt8!#s*5*b!%d^4@*=h$3qmu+o0*c=li8k%d^klqvw@7'
 #DEBUG = True
 #  배포용 개발때 사용 X => css staic Error
 DEBUG = False
-ALLOWED_HOSTS = ['127.0.0.1', '.pythonanywhere.com', '.kakao.com']
+ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['127.0.0.1', '.pythonanywhere.com', '.kakao.com/*']
 
 
 # Application definition
