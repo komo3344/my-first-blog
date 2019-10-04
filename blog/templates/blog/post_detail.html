@@ -19,7 +19,8 @@
 
     <!--댓글-->
     <hr>
-    <a class="btn btn-default" href="{% url 'add_comment_to_post' pk=post.pk %}">Add comment</a>
+    <a class="btn btn-default" href="{% url 'add_comment_to_post' pk=post.pk %}">댓글 쓰기</a>
+
     {% for comment in post.comments.all %}
 
         <div class="comment">
@@ -27,7 +28,7 @@
                 {{ comment.created_date }}
                 {% if user.is_staff %}
                     <a class="btn btn-default" href="{% url 'comment_remove' pk=comment.pk %}"><span class="glyphicon glyphicon-remove"></span></a>
-<!--                    <a class="btn btn-default" href="{% url 'comment_approve' pk=comment.pk %}"><span class="glyphicon glyphicon-ok"></span></a>-->
+                <!--<a class="btn btn-default" href="{% url 'comment_approve' pk=comment.pk %}"><span class="glyphicon glyphicon-ok"></span></a>-->
                 {% endif %}
             </div>
             <strong>{{ comment.author }}</strong>
