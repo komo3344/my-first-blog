@@ -79,7 +79,7 @@ def add_comment_to_post(request, pk):
             comment.post = post
             comment.save()
             return redirect('post_detail', pk=post.pk)
-    else:
+    else:   # add comment 버튼 클릭 시
 
         if request.user.is_staff:
             form = CommentForm(initial={'author': request.user})
