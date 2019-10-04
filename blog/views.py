@@ -79,7 +79,7 @@ def add_comment_to_post(request, pk):
             comment.post = post
             comment.save()
             return redirect('post_detail', pk=post.pk)
-    else:   # add comment 버튼 클릭 시
+    else:
 
         if request.user.is_staff:
             form = CommentForm(initial={'author': request.user})
@@ -96,7 +96,8 @@ def add_comment_to_post(request, pk):
             login_request_uri = 'https://kauth.kakao.com/oauth/authorize?'
 
             client_id = '63e4734e72d2d421ef9d5ff9200a241f'
-            redirect_uri = 'http://127.0.0.1:8000/oauth'
+            # redirect_uri = 'http://127.0.0.1:8000/oauth'
+            redirect_uri = 'http://wnsdud3119.pythonanywhere.com/oauth'
             post_primary_key = pk
             login_request_uri += 'client_id=' + client_id
             login_request_uri += '&redirect_uri=' + redirect_uri
@@ -158,4 +159,5 @@ def oauth(request):
     # print(userinfo_json)
     # print(User.objects.all())
 
-    return redirect('http://127.0.0.1:8000/post/{}/comment/'.format(post_primary_key))
+    #return redirect('http://127.0.0.1:8000/post/{}/comment/'.format(post_primary_key))
+    return redirect('http://wnsdud3119.pythonanywhere.com/post/{}/comment/'.format(post_primary_key))
