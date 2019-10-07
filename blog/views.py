@@ -144,17 +144,14 @@ def oauth(request):
     headers = {
         'Authorization': 'Bearer {}'.format(access_token_json['access_token']),
     }
-    data = {
-        'property_keys=["properties.nickname"]'
-    }
-    response_userinfo = requests.post('https://kapi.kakao.com/v2/user/me', headers=headers, data=data)
+    response_userinfo = requests.get('https://kapi.kakao.com/v2/user/me', headers=headers)
     userinfo_json = response_userinfo.json()
 
-    #nickName = str(userinfo_json['properties']['nickname']) + str('#' + str(userinfo_json['id']))
-    if not User.objects.filter(username=userinfo_json):
-        User.objects.create_user(userinfo_json)
+    nickName = str(userinfo_json['properties']['nickname']) + str('#' + str(userinfo_json['id']))
+    if not User.objects.filter(username=nickName):
+        User.objects.create_user(nickName)
 
-    request.session['nickName'] = userinfo_json
+    request.session['nickName'] = nickName
     # print('코드 : ', code)
     # print('엑세스토큰 : ', access_token_json)
     # print(userinfo_json)
