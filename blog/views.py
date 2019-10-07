@@ -147,7 +147,7 @@ def oauth(request):
     response_userinfo = requests.get('https://kapi.kakao.com/v2/user/me', headers=headers)
     userinfo_json = response_userinfo.json()
 
-    nickName = str(userinfo_json['properties']['nickname']) + str('#' + str(userinfo_json['id']))
+    nickName = str('kakao#' + str(userinfo_json['id']))
 
     if not User.objects.filter(username=nickName):
         User.objects.create_user(nickName)
