@@ -131,23 +131,26 @@ def oauth(request):
     post_primary_key = request.session.get('post_primary_key')
 
     # 발급받은 code를 통해 access token 발급
-    data = {
-        'grant_type': 'authorization_code',
-        'client_id': client_id,
-        'redirect_uri': redirect_uri,
-        'code': code
-    }
-    response_token = requests.post('https://kauth.kakao.com/oauth/token', data=data)
-    access_token_json = response_token.json()
+    access_token_request_uri = "https://kauth.kakao.com/oauth/token?grant_type=authorization_code&"
+
+    access_token_request_uri += "client_id=" + client_id
+    access_token_request_uri += "&redirect_uri=" + redirect_uri
+    access_token_request_uri += "&code=" + code
+
+    print(access_token_request_uri)
+
+    access_token_request_uri_data = requests.get(access_token_request_uri)
+    json_data = access_token_request_uri_data.json()
+    access_token = json_data['access_token']
 
     # access token을 이용하여 사용자 정보받기
-    headers = {
-        'Authorization': 'Bearer {}'.format(access_token_json['access_token']),
-    }
-    response_userinfo = requests.get('https://kapi.kakao.com/v2/user/me', headers=headers)
-    userinfo_json = response_userinfo.json()
+    user_profile_info_uri = "https://kapi.kakao.com/v1/api/talk/profile?access_token="
+    user_profile_info_uri += str(access_token)
 
-    nickName = str(userinfo_json['properties']['nickname']) + str('#' + str(userinfo_json['id']))
+    user_profile_info_uri_data = requests.get(user_profile_info_uri)
+    user_json_data = user_profile_info_uri_data.json()
+    nickName = user_json_data['nickName']
+
     if not User.objects.filter(username=nickName):
         User.objects.create_user(nickName)
 
