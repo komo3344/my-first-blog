@@ -140,15 +140,23 @@ def oauth(request):
     response_token = requests.post('https://kauth.kakao.com/oauth/token', data=data)
     access_token_json = response_token.json()
 
-    # access token을 이용하여 사용자 정보받기
-    headers = {
-        'Authorization': 'Bearer {}'.format(access_token_json['access_token']),
-    }
-    response_userinfo = requests.get('https://kapi.kakao.com/v2/user/me', headers=headers)
-    userinfo_json = response_userinfo.json()
+    # # access token을 이용하여 사용자 정보받기
+    # headers = {
+    #     'Authorization': 'Bearer {}'.format(access_token_json['access_token']),
+    # }
+    # response_userinfo = requests.get('https://kapi.kakao.com/v2/user/me', headers=headers)
+    # userinfo_json = response_userinfo.json()
 
     #nickName = str(userinfo_json['properties']['nickname']) + str('#' + str(userinfo_json['id']))
-    nickName = userinfo_json['id']
+    user_profile_info_uri = "https://kapi.kakao.com/v1/api/talk/profile?access_token="
+    user_profile_info_uri += str(access_token_json)
+
+    user_profile_info_uri_data = requests.get(user_profile_info_uri)
+    user_json_data = user_profile_info_uri_data.json()
+    nickName = user_json_data['nickName']
+    #profileImageURL = user_json_data['profileImageURL']
+    #thumbnailURL = user_json_data['thumbnailURL']
+    #nickName = userinfo_json['id']
     if not User.objects.filter(username=nickName):
         User.objects.create_user(nickName)
 
