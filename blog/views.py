@@ -142,19 +142,19 @@ def oauth(request):
     access_token_request_uri_data = requests.get(access_token_request_uri)
     json_data = access_token_request_uri_data.json()
     access_token = json_data['access_token']
-
+    print(access_token)
     # access token을 이용하여 사용자 정보받기
-    user_profile_info_uri = "https://kapi.kakao.com/v1/api/talk/profile?access_token="
-    user_profile_info_uri += str(access_token)
-
-    user_profile_info_uri_data = requests.get(user_profile_info_uri)
-    user_json_data = user_profile_info_uri_data.json()
-    nickName = user_json_data['nickName']
-
-    if not User.objects.filter(username=nickName):
-        User.objects.create_user(nickName)
-
-    request.session['nickName'] = nickName
+    # user_profile_info_uri = "https://kapi.kakao.com/v1/api/talk/profile?access_token="
+    # user_profile_info_uri += str(access_token)
+    #
+    # user_profile_info_uri_data = requests.get(user_profile_info_uri)
+    # user_json_data = user_profile_info_uri_data.json()
+    # nickName = user_json_data['nickName']
+    #
+    # if not User.objects.filter(username=nickName):
+    #     User.objects.create_user(nickName)
+    #
+    # request.session['nickName'] = nickName
     # print('코드 : ', code)
     # print('엑세스토큰 : ', access_token_json)
     # print(userinfo_json)
