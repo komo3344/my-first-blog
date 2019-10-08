@@ -87,25 +87,35 @@ def add_comment_to_post(request, pk):
             # print(User.objects.filter(username=request.session.get('nickName')))
             return render(request, 'blog/add_comment_to_post.html', {'form': form})
 
-        elif request.session.get('nickName'):   # kakao->oauth->add_comment_to_post
-
-            form = CommentForm(initial={'author': request.session.get('nickName')})
-            return render(request, 'blog/add_comment_to_post.html', {'form': form})
-
         else:
-            login_request_uri = 'https://kauth.kakao.com/oauth/authorize?'
+            if request.session.get('token'):
+                headers = {
+                    'Authorization': 'Bearer {}'.format(request.session.get('token')),
+                }
+                response_userinfo = requests.get('https://kapi.kakao.com/v2/user/me', headers=headers)
+                userinfo_json = response_userinfo.json()
 
-            client_id = '63e4734e72d2d421ef9d5ff9200a241f'
-            redirect_uri = 'http://wnsdud3119.pythonanywhere.com/oauth/'
-            post_primary_key = pk
-            login_request_uri += 'client_id=' + client_id
-            login_request_uri += '&redirect_uri=' + redirect_uri
-            login_request_uri += '&response_type=code'
+                nickName = str(userinfo_json['properties']['nickname']) + str('#' + str(userinfo_json['id']))
 
-            request.session['client_id'] = client_id
-            request.session['redirect_uri'] = redirect_uri
-            request.session['post_primary_key'] = post_primary_key
-            return redirect(login_request_uri)
+                if not User.objects.filter(username=nickName):
+                    User.objects.create_user(nickName)
+
+                form = CommentForm(initial={'author': nickName})
+                return render(request, 'blog/add_comment_to_post.html', {'form': form})
+            else:
+                login_request_uri = 'https://kauth.kakao.com/oauth/authorize?'
+
+                client_id = '63e4734e72d2d421ef9d5ff9200a241f'
+                redirect_uri = 'http://wnsdud3119.pythonanywhere.com/oauth/'
+                post_primary_key = pk
+                login_request_uri += 'client_id=' + client_id
+                login_request_uri += '&redirect_uri=' + redirect_uri
+                login_request_uri += '&response_type=code'
+
+                request.session['client_id'] = client_id
+                request.session['redirect_uri'] = redirect_uri
+                request.session['post_primary_key'] = post_primary_key
+                return redirect(login_request_uri)
 
     
 
@@ -131,18 +141,18 @@ def oauth(request):
     post_primary_key = request.session.get('post_primary_key')
 
     # 발급받은 code를 통해 access token 발급
-    access_token_request_uri = "https://kauth.kakao.com/oauth/token?grant_type=authorization_code&"
-
-    access_token_request_uri += "client_id=" + client_id
-    access_token_request_uri += "&redirect_uri=" + redirect_uri
-    access_token_request_uri += "&code=" + code
-
-    print(access_token_request_uri)
-
-    access_token_request_uri_data = requests.get(access_token_request_uri)
-    json_data = access_token_request_uri_data.json()
-    access_token = json_data['access_token']
-    print(access_token)
+    data = {
+        'grant_type': 'authorization_code',
+        'client_id': client_id,
+        'redirect_uri': redirect_uri,
+        'code': code
+    }
+    response_token = requests.post('https://kauth.kakao.com/oauth/token', data=data)
+    access_token_json = response_token.json()
+    access_token = access_token_json['access_token']
+    request.session['token'] = access_token
+    print(request.session['token'])
+    print(response_token.status_code)
     # access token을 이용하여 사용자 정보받기
     user_profile_info_uri = "https://kapi.kakao.com/v1/api/talk/profile?access_token="
     user_profile_info_uri += str(access_token)
