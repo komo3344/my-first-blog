@@ -79,7 +79,7 @@ def add_comment_to_post(request, pk):
             comment.post = post
             comment.save()
             return redirect('post_detail', pk=post.pk)
-    else:   # add comment 버튼 클릭 시
+    else:  # add comment 버튼 클릭 시
 
         if request.user.is_staff:
             form = CommentForm(initial={'author': request.user})
@@ -87,27 +87,40 @@ def add_comment_to_post(request, pk):
             # print(User.objects.filter(username=request.session.get('nickName')))
             return render(request, 'blog/add_comment_to_post.html', {'form': form})
 
-        elif request.session.get('nickName'):   # kakao->oauth->add_comment_to_post
-
-            form = CommentForm(initial={'author': request.session.get('nickName')})
-            return render(request, 'blog/add_comment_to_post.html', {'form': form})
-
         else:
-            login_request_uri = 'https://kauth.kakao.com/oauth/authorize?'
+            if request.session.get('token'):
+                headers = {
+                    'Authorization': 'Bearer {}'.format(request.session.get('token')),
+                }
+                response_userinfo = requests.get('https://kapi.kakao.com/v2/user/me', headers=headers)
+                userinfo_json = response_userinfo.json()
+                u_info = userinfo_json['properties']
+                k_name = u_info['nickname']
+                print('userinfo : ', u_info)
+                print('kakao 닉네임 : ', k_name)
+                print('닉네임 : ', userinfo_json['properties']['nickname'])
+                nickName = str(userinfo_json['properties']['nickname']) + str('#' + str(userinfo_json['id']))
 
-            client_id = '63e4734e72d2d421ef9d5ff9200a241f'
-            redirect_uri = 'http://127.0.0.1:8000/oauth'
-            post_primary_key = pk
-            login_request_uri += 'client_id=' + client_id
-            login_request_uri += '&redirect_uri=' + redirect_uri
-            login_request_uri += '&response_type=code'
+                if not User.objects.filter(username=nickName):
+                    User.objects.create_user(nickName)
 
-            request.session['client_id'] = client_id
-            request.session['redirect_uri'] = redirect_uri
-            request.session['post_primary_key'] = post_primary_key
-            return redirect(login_request_uri)
+                form = CommentForm(initial={'author': nickName})
+                return render(request, 'blog/add_comment_to_post.html', {'form': form})
 
-    
+            else:
+                login_request_uri = 'https://kauth.kakao.com/oauth/authorize?'
+
+                client_id = '63e4734e72d2d421ef9d5ff9200a241f'
+                redirect_uri = 'http://127.0.0.1:8000/oauth/'
+                post_primary_key = pk
+                login_request_uri += 'client_id=' + client_id
+                login_request_uri += '&redirect_uri=' + redirect_uri
+                login_request_uri += '&response_type=code'
+
+                request.session['client_id'] = client_id
+                request.session['redirect_uri'] = redirect_uri
+                request.session['post_primary_key'] = post_primary_key
+                return redirect(login_request_uri)
 
 
 @login_required
@@ -139,20 +152,23 @@ def oauth(request):
     }
     response_token = requests.post('https://kauth.kakao.com/oauth/token', data=data)
     access_token_json = response_token.json()
-
+    access_token = access_token_json['access_token']
+    request.session['token'] = access_token
+    print(request.session['token'])
+    print(response_token.status_code)
     # access token을 이용하여 사용자 정보받기
-    headers = {
-        'Authorization': 'Bearer {}'.format(access_token_json['access_token']),
-    }
-    response_userinfo = requests.get('https://kapi.kakao.com/v2/user/me', headers=headers)
-    userinfo_json = response_userinfo.json()
+    # headers = {
+    #     'Authorization': 'Bearer {}'.format(access_token_json['access_token']),
+    # }
+    # response_userinfo = requests.get('https://kapi.kakao.com/v2/user/me', headers=headers)
+    # userinfo_json = response_userinfo.json()
 
-    nickName = str(userinfo_json['properties']['nickname']) + str('#' + str(userinfo_json['id']))
+    # nickName = str(userinfo_json['properties']['nickname']) + str('#' + str(userinfo_json['id']))
 
-    if not User.objects.filter(username=nickName):
-        User.objects.create_user(nickName)
+    # if not User.objects.filter(username=nickName):
+    #     User.objects.create_user(nickName)
 
-    request.session['nickName'] = nickName
+    # request.session['nickName'] = nickName
     # print('코드 : ', code)
     # print('엑세스토큰 : ', access_token_json)
     # print(userinfo_json)
