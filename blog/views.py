@@ -89,12 +89,14 @@ def add_comment_to_post(request, pk):
 
         else:
             if request.session.get('token'):
+
+                token = request.session.get('token')
                 headers = {
-                    'Authorization': 'Bearer {}'.format(request.session.get('token')),
+                    'Authorization': 'Bearer {}'.format(token),
                 }
                 response_userinfo = requests.get('https://kapi.kakao.com/v2/user/me', headers=headers)
                 userinfo_json = response_userinfo.json()
-
+                print(token)
                 nickName = str('kakao-' + str(userinfo_json['id']))
 
                 if not User.objects.filter(username=nickName):
