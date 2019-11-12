@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="06189117-0534-47d7-ac88-f9c8e727ce1c" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/procfile" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -33,6 +32,7 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\ZB-PC087\djangogirls" />
       <recent name="C:\Users\ZB-PC087\djangogirls\blog\templates" />
     </key>
   </component>
